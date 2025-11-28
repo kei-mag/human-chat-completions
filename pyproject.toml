@@ -1,0 +1,58 @@
+[project]
+name = "human-chat-completions"
+version = "0.1.0"
+description = "A drop-in replacement for the OpenAI Chat Completions API that allows human operators to manually generate responses. Designed for Wizard of Oz (WoZ) studies, prototyping, and data collection."
+readme = "README.md"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+authors = [
+  { name = "Keisuke Magara", email = "61485115+kei-mag@users.noreply.github.com" }
+]
+keywords = ["human-in-the-loop", "human-agent-interaction", "wizard-of-oz", "WoZ", "openai-api", "openai-chat-completions", "reseach-tools"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Information Technology",
+  "Intended Audience :: Science/Research",
+  "Topic :: Communications :: Chat",
+  "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Topic :: Utilities",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: MacOS",
+  "Operating System :: Microsoft :: Windows :: Windows 10",
+  "Operating System :: Microsoft :: Windows :: Windows 11",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Typing :: Typed",
+]
+dependencies = [
+  "flet==0.28.3"
+]
+
+[tool.flet]
+org = "jp.ac.uec.lab.t-interaction"
+
+product = "Human Chat Completions"
+
+company = "Miyamoto Lab"
+
+copyright = "Copyright (C) 2025 by Keisuke Magara"
+
+[tool.flet.app]
+path = "src"
+
+[tool.uv]
+dev-dependencies = [
+    "flet[all]==0.28.3",
+]
+
+[tool.poetry]
+package-mode = false
+
+[tool.poetry.group.dev.dependencies]
+flet = {extras = ["all"], version = "0.28.3"}

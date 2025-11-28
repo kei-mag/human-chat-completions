@@ -1,7 +1,7 @@
-# human-chat-completions
+# <img src="https://github.com/kei-mag/human-chat-completions/blob/main/src/assets/icon.png?raw=true" height="50" style="vertical-align: bottom;"> Human Chat Completions
 [[日本語]](README.md) / [**English**]
 
-human-chat-completions is a desktop chat application designed for Wizard of Oz (WoZ) experiments, built with [Flet](https://flet.dev).
+Human Chat Completions is a desktop chat application designed for Wizard of Oz (WoZ) experiments, built with [Flet](https://flet.dev).
 
 It provides an API endpoint compatible with OpenAI's `v1/chat/completions`. Instead of automatically returning an AI response, it routes the request to a Flet-based GUI where a human operator acts as the "Assistant".
 

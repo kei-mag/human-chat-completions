@@ -1,7 +1,7 @@
-# human-chat-completions
+# <img src="https://github.com/kei-mag/human-chat-completions/blob/main/src/assets/icon.png?raw=true" height="50" style="vertical-align: bottom;"> Human Chat Completions
 [**日本語**] / [[English](README_en.md)]
 
-human-chat-completions は、[Flet](https://flet.dev) で構築された オズの魔法使い法 (Wizard of Oz) 実験用のデスクトップチャットアプリケーションです。
+Human Chat Completions は、[Flet](https://flet.dev) で構築された オズの魔法使い法 (Wizard of Oz) 実験用のデスクトップチャットアプリケーションです。
 
 OpenAIの `v1/chat/completions` APIと互換性のあるエンドポイントを提供しますが、リクエストは自動処理されず、Flet製のチャット画面（オペレーターUI）に転送されます。
 
