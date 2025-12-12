@@ -1,0 +1,107 @@
+name: Release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flet==0.28.3
+          # Generate requirements.txt for flet build
+          echo "flet==0.28.3" > requirements.txt
+
+      - name: Flet Build macOS
+        run: |
+          flet build macos --build-number ${{ github.run_number }}
+
+      - name: Zip macOS App
+        run: |
+          cd build/macos/Build/Products/Release
+          zip -r human_chat_completions_macos.zip human_chat_completions.app
+
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: build/macos/Build/Products/Release/human_chat_completions_macos.zip
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flet==0.28.3
+          # Generate requirements.txt for flet build
+          echo "flet==0.28.3" > requirements.txt
+
+      - name: Install Inno Setup
+        run: |
+          choco install innosetup
+
+      - name: Flet Build Windows
+        run: |
+          flet build windows --build-number ${{ github.run_number }}
+
+      - name: Build Installer
+        run: |
+          iscc setup.iss
+
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/human_chat_completions_setup.exe
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flet==0.28.3
+          # Generate requirements.txt for flet build
+          echo "flet==0.28.3" > requirements.txt
+
+      - name: Install Linux Build Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libmpv-dev
+
+      - name: Flet Build Linux
+        run: |
+          flet build linux --build-number ${{ github.run_number }}
+
+      - name: Zip Linux Bundle
+        run: |
+          cd build/linux/x64/release/bundle
+          zip -r human_chat_completions_linux.zip .
+
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: build/linux/x64/release/bundle/human_chat_completions_linux.zip
