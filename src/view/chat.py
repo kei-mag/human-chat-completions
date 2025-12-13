@@ -22,7 +22,7 @@ class ChatView(ft.Container):
     def __init__(self, page: ft.Page):
         super().__init__(expand=True)
         self.port_field = ft.TextField(
-            value="8080",
+            value="8000",
             label="PORT",
             width=100,
             text_size=12,
@@ -49,13 +49,14 @@ class ChatView(ft.Container):
         self.api_server = None
 
         self.input_field = ft.TextField(
-            hint_text="ここにレスポンスを入力...",
+            hint_text="メッセージが来たらここへ入力...",
             expand=True,
             multiline=True,
             min_lines=1,
             max_lines=5,
             border_radius=10,
             filled=True,
+            disabled=True,
         )
 
         def send_message(e):
@@ -63,14 +64,31 @@ class ChatView(ft.Container):
                 return
             self._add_message(self.input_field.value, is_user=False, is_response=True)
             self.input_field.value = ""
+            self.input_field.hint_text = "メッセージが来たらここへ入力..."
+            self.input_field.disabled = True
+            self.send_button.disabled = True
+            self.input_field.bgcolor=ft.Colors.GREY_400
             self.input_field.update()
+            self.send_button.update()
 
         self.send_button = ft.IconButton(
             icon=ft.Icons.SEND_ROUNDED,
             icon_color=ft.Colors.WHITE,
-            bgcolor=ft.Colors.BLUE_600,
-            tooltip="Send",
+            bgcolor=ft.Colors.GREY_400,
+            tooltip="Ctrl+Enterで送信",
             on_click=send_message,
+            disabled=True,
+        )
+
+        self.filter_system_prompt = False
+
+        def toggle_filter(e):
+            self.filter_system_prompt = e.control.value
+            
+        self.filter_button = ft.Switch(
+            label="システムメッセージを非表示",
+            value=self.filter_system_prompt,
+            on_change=toggle_filter,
         )
 
         def keyboard_event(e):
@@ -97,8 +115,15 @@ class ChatView(ft.Container):
                                 ],
                                 spacing=10,
                             ),
+                            ft.VerticalDivider(),
+                            ft.Row(
+                                [
+                                    self.filter_button,
+                                ],
+                                spacing=10,
+                            ),
                         ],
-                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                        alignment=ft.MainAxisAlignment.SPACE_AROUND,
                         vertical_alignment=ft.CrossAxisAlignment.CENTER,
                     ),
                     padding=ft.padding.symmetric(horizontal=10, vertical=5),
@@ -132,7 +157,7 @@ class ChatView(ft.Container):
     def set_message(self, messages: list[str]):
         self.messages_list.controls.clear()
         for message in messages:
-            self._add_message(message["content"], message["role"] == "user")
+            self._add_message(message["content"], message["role"] != "assistant")
         self.messages_list.update()
 
     def _add_message(self, message: str, is_user: bool = False, is_response = False):
@@ -185,6 +210,8 @@ class ChatView(ft.Container):
             if not message.content:
                 continue
             if isinstance(message, ChatCompletionRequestSystemMessage) or isinstance(message, ChatCompletionRequestDeveloperMessage):
+                if self.filter_system_prompt:
+                    continue
                 messages_json.append(message.model_dump())
             elif isinstance(message, ChatCompletionRequestUserMessage):
                 if isinstance(message.content, str):
@@ -197,6 +224,12 @@ class ChatView(ft.Container):
                 continue
         self.set_message(messages_json)
         self.pending_future = asyncio.get_running_loop().create_future()
+        self.input_field.disabled = False
+        self.input_field.hint_text = "レスポンスメッセージを入力..."
+        self.send_button.disabled = False
+        self.send_button.bgcolor=ft.Colors.BLUE_600
+        self.input_field.update()
+        self.send_button.update()
         result = await self.pending_future
         return result
         

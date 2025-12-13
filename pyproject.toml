@@ -31,7 +31,9 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
-  "flet==0.28.3"
+  "flet==0.28.3",
+  "fastapi>=0.122.0",
+  "pydantic>=2.12.5",
 ]
 
 [tool.flet]
