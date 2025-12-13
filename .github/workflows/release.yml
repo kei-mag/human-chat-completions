@@ -43,7 +43,7 @@ jobs:
       - name: Zip macOS App
         run: |
           cd build/macos
-          zip -r human_chat_completions_${{ env.BUILD_VERSION }}_macos.zip ./*
+          zip -r human_chat_completions_${{ env.BUILD_VERSION }}_macos.zip "Human Chat Completions.app"
 
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v1
