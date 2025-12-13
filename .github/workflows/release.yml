@@ -30,13 +30,10 @@ jobs:
           # Generate requirements.txt for flet build
           echo "flet==0.28.3" > requirements.txt
         
-      - name: Update src/__version.py__ in one line using bash
+      - name: Update src/__version__.py in one line using bash
         run: |
-          # ${parameter#word} というbashの機能を使って 'v' を除去
-          VERSION_NUM="${{ github.ref_name#v }}"
-          
-          # 1行でファイルに書き込む
-          echo "VERSION = \"$VERSION_NUM\"" > src/__version.py__
+          # VERSION環境変数からバージョン番号を取得して、1行でファイルに書き込む
+          echo "VERSION = \"$VERSION\"" > src/__version__.py
         shell: bash
 
       - name: Flet Build macOS
@@ -46,12 +43,12 @@ jobs:
       - name: Zip macOS App
         run: |
           cd build/macos
-          zip -r human_chat_completions_macos.zip human_chat_completions.app
+          zip -r human_chat_completions_${{ env.BUILD_VERSION }}_macos.zip ./*
 
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v1
         with:
-          files: build/macos/human_chat_completions_macos.zip
+          files: build/macos/human_chat_completions_${{ env.BUILD_VERSION }}_macos.zip
 
   build-windows:
     runs-on: windows-latest
@@ -86,7 +83,7 @@ jobs:
           
           # Add-Content コマンドでファイルに書き込む
           # "-Encoding UTF8" を指定して文字化けを防ぐ
-          "VERSION = `"$versionNum`"" | Add-Content -Path src/__version.py__ -Encoding UTF8
+          "VERSION = `"$versionNum`"" | Set-Content -Path src/__version__.py -Encoding UTF8
         shell: powershell
 
       - name: Install Inno Setup
@@ -106,7 +103,7 @@ jobs:
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v1
         with:
-          files: inno-setup/Output/human_chat_completions_v${{ env.BUILD_VERSION }}_windows_setup.exe
+          files: inno-setup/Output/human_chat_completions_${{ env.BUILD_VERSION }}_windows_setup.exe
 
   build-linux:
     runs-on: ubuntu-latest
@@ -133,13 +130,10 @@ jobs:
           # Generate requirements.txt for flet build
           echo "flet==0.28.3" > requirements.txt
       
-      - name: Update src/__version.py__ in one line using bash
-        run: |
-          # ${parameter#word} というbashの機能を使って 'v' を除去
-          VERSION_NUM="${{ github.ref_name#v }}"
-          
-          # 1行でファイルに書き込む
-          echo "VERSION = \"$VERSION_NUM\"" > src/__version.py__
+      - name: Update src/__version__.py in one line using bash
+        run: |          
+          # VERSION環境変数からバージョン番号を取得して、1行でファイルに書き込む
+          echo "VERSION = \"$VERSION\"" > src/__version__.py
         shell: bash
 
       - name: Install Linux Build Dependencies
@@ -154,9 +148,9 @@ jobs:
       - name: Zip Linux Bundle
         run: |
           cd build/linux
-          zip -r human_chat_completions_linux.zip .
+          zip -r human_chat_completions_${{ env.BUILD_VERSION }}_linux.zip ./*
 
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v1
         with:
-          files: build/linux/human_chat_completions_linux.zip
+          files: build/linux/human_chat_completions_${{ env.BUILD_VERSION }}_linux.zip

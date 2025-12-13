@@ -14,8 +14,7 @@
 AppId={{43A8CD3A-E05F-4327-AE87-45F67D5E9EB6}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
-AppendVersionInfoToAppName=no
-;AppVerName={#MyAppName} {#MyAppVersion}
+; AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
@@ -35,7 +34,7 @@ LicenseFile=..\LICENSE
 ; Remove the following line to run in administrative install mode (install for all users).
 PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
-OutputBaseFilename=human_chat_completions_v{#MyAppVersion}_setup
+OutputBaseFilename=human_chat_completions_{#MyAppVersion}_windows_setup
 SetupIconFile=installer_icon.ico
 SolidCompression=yes
 WizardStyle=modern windows11
