@@ -161,3 +161,6 @@ cython_debug/
 
 # Flet
 storage/
+
+# Inno Setup
+inno-setup/Output

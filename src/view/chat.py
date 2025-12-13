@@ -22,7 +22,7 @@ class ChatView(ft.Container):
     def __init__(self, page: ft.Page):
         super().__init__(expand=True)
         self.port_field = ft.TextField(
-            value="8000",
+            value="8080",
             label="PORT",
             width=100,
             text_size=12,
@@ -67,7 +67,7 @@ class ChatView(ft.Container):
             self.input_field.hint_text = "メッセージが来たらここへ入力..."
             self.input_field.disabled = True
             self.send_button.disabled = True
-            self.input_field.bgcolor=ft.Colors.GREY_400
+            self.send_button.bgcolor=ft.Colors.GREY_400
             self.input_field.update()
             self.send_button.update()
 
@@ -244,7 +244,7 @@ class ChatView(ft.Container):
             self.api_server = FastAPIServer(
                 host="0.0.0.0",
                 port=int(self.port_field.value),
-                log_level="warning",
+                log_level="info",
                 on_message_received=self.on_message_received,
             )
             self.api_server.start()

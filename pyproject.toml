@@ -1,6 +1,6 @@
 [project]
 name = "human-chat-completions"
-version = "0.1.0"
+version = "1.0.0-dev"
 description = "A drop-in replacement for the OpenAI Chat Completions API that allows human operators to manually generate responses. Designed for Wizard of Oz (WoZ) studies, prototyping, and data collection."
 readme = "README.md"
 license-files = ["LICENSE"]
@@ -34,19 +34,36 @@ dependencies = [
   "flet==0.28.3",
   "fastapi>=0.122.0",
   "pydantic>=2.12.5",
+  "uvicorn>=0.38.0",
 ]
 
 [tool.flet]
 org = "jp.ac.uec.lab.t-interaction"
-
 product = "Human Chat Completions"
-
 company = "Miyamoto Lab"
+copyright = "Copyright (C) 2025 by Keisuke Magara and Miyamoto Lab"
 
-copyright = "Copyright (C) 2025 by Keisuke Magara"
+compile.app = true
+compile.packages = true
+compile.cleanup = true
 
 [tool.flet.app]
 path = "src"
+
+[tool.flet.splash]
+color = "#f7f9ff"
+dark_color = "#101418"
+web = true
+ios = true
+android = true
+
+[tool.flet.app.boot_screen]
+show = true
+message = "Human Chat Completionsを起動するための準備をしています..."
+
+[tool.flet.app.startup_screen]
+show = true
+message = "Human Chat Completionsを起動しています..."
 
 [tool.uv]
 dev-dependencies = [

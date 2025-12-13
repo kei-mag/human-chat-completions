@@ -1,8 +1,11 @@
+import logging
+
 import flet as ft
 
 from view.chat import ChatView
 from view.console import ConsoleView
 
+logging.basicConfig(level=logging.INFO)
 
 def main(page: ft.Page):
     page.title = "Human Chat Completions v0.1.0"

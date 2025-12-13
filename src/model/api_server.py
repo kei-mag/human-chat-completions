@@ -5,6 +5,7 @@
 import asyncio
 import threading
 import time
+from datetime import datetime
 from logging import getLogger
 from typing import AsyncGenerator, Awaitable, Callable, Optional
 
@@ -25,6 +26,11 @@ from model.api_model import (
     CreateChatCompletionRequest,
     CreateChatCompletionResponse,
     FinishReason,
+    ListModelsResponse,
+    Model,
+    OllamaListModelsResponse,
+    OllamaModel,
+    OllamaModelDetails,
 )
 
 logger = getLogger(__name__)
@@ -68,6 +74,29 @@ class FastAPIServer:
             self.chat_completions,
             methods=["POST"],
         )
+        self.app.add_api_route(
+            "/v1/models",
+            self.list_models,
+            methods=["GET"],
+        )
+        self.app.add_api_route(
+            "/v1/models/{model_id}",
+            self.retrieve_model,
+            methods=["GET"],
+            tags=["Models"],
+            summary="Retrieve model",
+            operation_id="retrieveModel",
+            response_model=Model,
+        )
+        self.app.add_api_route(
+            "/api/tags",
+            self.list_models_ollama,
+            methods=["GET"],
+            tags=["Ollama Compatibility"],
+            summary="List models (Ollama)",
+            operation_id="listModelsOllama",
+            response_model=OllamaListModelsResponse
+        )
         self.app.add_exception_handler(404, self.not_found_handler)
         self.config = uvicorn.Config(
             self.app,
@@ -82,6 +111,7 @@ class FastAPIServer:
         self._thread = None
         self.on_message_received = on_message_received
         self.port = port
+        self.launch_time = time.time()
 
     def start(self):
         if self._thread and self._thread.is_alive():
@@ -218,6 +248,56 @@ class FastAPIServer:
                     )
                 ],
             )
+    
+    async def list_models(self):
+        """
+        利用可能なモデルのリストを返します。
+        """
+        return ListModelsResponse(
+            data=[
+                Model(id="human", created=int(self.launch_time), owned_by="human-backend"),
+            ]
+        )
+    
+    async def retrieve_model(self, model_id: str):
+        """
+        特定のモデル情報を取得します。
+        OpenAI API互換のため、GET /v1/models/human 等に対応します。
+        """
+        # 許可するモデルの定義
+        allowed_models = {
+            Model(id="human", created=int(self.launch_time), owned_by="human-backend"),
+        }
+
+        if model_id not in allowed_models:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "error": {
+                        "message": f"The model '{model_id}' does not exist",
+                        "type": "invalid_request_error",
+                        "param": "model",
+                        "code": "model_not_found"
+                    }
+                }
+            )
+        
+        return allowed_models[model_id]
+    
+    async def list_models_ollama(self):
+        """
+        Ollama互換のモデル一覧エンドポイントです。
+        """
+        return OllamaListModelsResponse(
+            models=[
+                OllamaModel(
+                    name="human:latest",
+                    model="human:latest",
+                    modified_at=datetime.fromtimestamp(self.launch_time).isoformat(),
+                    details=OllamaModelDetails()
+                ),
+            ]
+        )
 
     async def not_found_handler(self, request: Request, exc: HTTPException):
         return JSONResponse(

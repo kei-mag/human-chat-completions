@@ -27,3 +27,5 @@ This gives you the flexibility to **seamlessly switch between purely human respo
 2. **RLHF Data Collection**: Create high-quality datasets by having humans correct AI errors in real-time.
 3. **Safety & Alignment Testing**: Manually intervene when the AI generates unsafe content to test client-side guardrails.
 
+## Installation
+Download the executable file for your OS from the [Latest Release](https://github.com/miyamoto-hai-lab/human-chat-completions/releases/latest). For Windows, it is an installer, so follow the wizard to complete the installation.

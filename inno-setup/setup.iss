@@ -3,7 +3,7 @@
 ; Non-commercial use only
 
 #define MyAppName "Human Chat Completions"
-#define MyAppVersion "1.0.0"
+#define MyAppVersion GetEnv("BUILD_VERSION")
 #define MyAppPublisher "Miyamoto Lab"
 #define MyAppURL "https://github.com/miyamoto-hai-lab/human-chat-completions"
 #define MyAppExeName "human_chat_completions.exe"
@@ -14,6 +14,7 @@
 AppId={{43A8CD3A-E05F-4327-AE87-45F67D5E9EB6}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
+AppendVersionInfoToAppName=no
 ;AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
@@ -30,12 +31,12 @@ ArchitecturesAllowed=x64compatible
 ; the 64-bit view of the registry.
 ArchitecturesInstallIn64BitMode=x64compatible
 DisableProgramGroupPage=yes
-LicenseFile=LICENSE
+LicenseFile=..\LICENSE
 ; Remove the following line to run in administrative install mode (install for all users).
 PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
-OutputBaseFilename=HumanChatCompletionsSetup
-SetupIconFile=inno-setup\installer_icon.ico
+OutputBaseFilename=human_chat_completions_v{#MyAppVersion}_setup
+SetupIconFile=installer_icon.ico
 SolidCompression=yes
 WizardStyle=modern windows11
 
@@ -47,22 +48,22 @@ Name: "japanese"; MessagesFile: "compiler:Languages\Japanese.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "build\windows\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "build\windows\data\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "build\windows\DLLs\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "build\windows\Lib\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "build\windows\site-packages\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "build\windows\flutter_windows.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "build\windows\msvcp140.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "build\windows\python3.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "build\windows\python312.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "build\windows\screen_retriever_windows_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "build\windows\serious_python_windows_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "build\windows\url_launcher_windows_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "build\windows\vcruntime140.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "build\windows\vcruntime140_1.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "build\windows\window_manager_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "build\windows\window_to_front_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\build\windows\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\build\windows\data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\build\windows\DLLs\*"; DestDir: "{app}\DLLs"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\build\windows\Lib\*"; DestDir: "{app}\Lib"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\build\windows\site-packages\*"; DestDir: "{app}\site-packages"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\build\windows\flutter_windows.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\build\windows\msvcp140.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\build\windows\python3.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\build\windows\python312.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\build\windows\screen_retriever_windows_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\build\windows\serious_python_windows_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\build\windows\url_launcher_windows_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\build\windows\vcruntime140.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\build\windows\vcruntime140_1.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\build\windows\window_manager_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\build\windows\window_to_front_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

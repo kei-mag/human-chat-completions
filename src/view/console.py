@@ -1,8 +1,9 @@
 """
 メイン画面右側のレスポンス構築
 """
+from os import getenv
+
 import flet as ft
-import flet.core.webview
 
 
 class ConsoleView(ft.Container):
@@ -108,6 +109,7 @@ class ConsoleView(ft.Container):
         self.content = ft.Column(
             [
                 self.error_container,
+                ft.Text(f"Log file location: {getenv('FLET_APP_CONSOLE', 'unknown')}", color=ft.Colors.GREY_700),
                 ft.Divider(color=ft.Colors.TRANSPARENT, height=10),
 
                 ft.Row([ft.Text("Settings", weight=ft.FontWeight.BOLD), self.theme_switch, self.settings_button], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),

@@ -244,3 +244,39 @@ class ChatCompletionChunk(OpenAIBaseModel):
     system_fingerprint: Optional[str] = Field("fp_human_backend", description="Backend configuration fingerprint.") # クライアント互換用
     object: Literal["chat.completion.chunk"] = Field("chat.completion.chunk", description="The object type, which is always `chat.completion.chunk`.")
     usage: Optional[CompletionUsage] = Field(None, description="Optional usage for the final chunk.")
+
+# ==========================================
+# Model List Response
+# ==========================================
+
+class Model(OpenAIBaseModel):
+    id: str = Field(..., description="The model identifier, which can be referenced in the API endpoints.")
+    created: int = Field(default_factory=lambda: int(time.time()), description="The Unix timestamp (in seconds) when the model was created.")
+    object: Literal["model"] = "model"
+    owned_by: str = Field(..., description="The organization that owns the model.")
+
+class ListModelsResponse(OpenAIBaseModel):
+    object: Literal["list"] = "list"
+    data: List[Model] = Field(..., description="List of models.")
+
+# ==========================================
+# Ollama Compatibility Models (Added)
+# ==========================================
+
+class OllamaModelDetails(OpenAIBaseModel):
+    format: str = "gguf"
+    family: str = "human"
+    families: Optional[List[str]] = None
+    parameter_size: str = "1000B"
+    quantization_level: str = "Q4_0"
+
+class OllamaModel(OpenAIBaseModel):
+    name: str
+    model: str
+    modified_at: str
+    size: int = 0
+    digest: str = "sha256:dummy_digest_for_human_backend"
+    details: OllamaModelDetails
+
+class OllamaListModelsResponse(OpenAIBaseModel):
+    models: List[OllamaModel]

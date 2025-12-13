@@ -1,7 +1,7 @@
 # <img src="https://github.com/kei-mag/human-chat-completions/blob/main/src/assets/icon.png?raw=true" height="50" style="vertical-align: bottom;"> Human Chat Completions
 
 <div style="display: flex; justify-content: space-around;">
-<p style="font-size: 16px;"><b>日本語</b> / <a href="README_en.md">English</a></p> <img src="https://github.com/miyamoto-hai-lab/human-chat-completions/actions/workflows/release.yml/badge.svg">
+<div style="font-size: 16px;"><b>日本語</b> / <a href="README_en.md">English</a></div> <img src="https://github.com/miyamoto-hai-lab/human-chat-completions/actions/workflows/release.yml/badge.svg">
 </div>
 
 Human Chat Completions は、[Flet](https://flet.dev) で構築された オズの魔法使い法 (Wizard of Oz) 実験用のデスクトップチャットアプリケーションです。
@@ -29,7 +29,8 @@ OpenAIの `v1/chat/completions` APIと互換性のあるエンドポイントを
 
 ## 使い方
 ### インストールと起動
-[最新のRelease](https://github.com/miyamoto-hai-lab/human-chat-completions/releases/latest)から
+[最新のRelease](https://github.com/miyamoto-hai-lab/human-chat-completions/releases/latest)からお使いのOSの実行ファイルをダウンロードします．
+Windowsの場合はインストーラーとなっているので，ウィザードに沿ってインストールしてください．
 
 ### クライアント側のコード例
 ```python

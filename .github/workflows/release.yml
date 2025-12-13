@@ -10,6 +10,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Extract BUILD_VERSION and set GITHUB_ENV
+        run: |
+          TAG_NAME="${{ github.ref_name }}"
+          VERSION="${TAG_NAME#v}"
+          echo "BUILD_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Set BUILD_VERSION to $VERSION"
+        shell: bash
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -21,26 +29,44 @@ jobs:
           pip install flet==0.28.3
           # Generate requirements.txt for flet build
           echo "flet==0.28.3" > requirements.txt
+        
+      - name: Update src/__version.py__ in one line using bash
+        run: |
+          # ${parameter#word} というbashの機能を使って 'v' を除去
+          VERSION_NUM="${{ github.ref_name#v }}"
+          
+          # 1行でファイルに書き込む
+          echo "VERSION = \"$VERSION_NUM\"" > src/__version.py__
+        shell: bash
 
       - name: Flet Build macOS
         run: |
-          flet build macos --build-number ${{ github.run_number }}
+          flet build macos --build-version ${{ env.BUILD_VERSION }} --build-number ${{ github.run_number }}
 
       - name: Zip macOS App
         run: |
-          cd build/macos/Build/Products/Release
+          cd build/macos
           zip -r human_chat_completions_macos.zip human_chat_completions.app
 
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v1
         with:
-          files: build/macos/Build/Products/Release/human_chat_completions_macos.zip
+          files: build/macos/human_chat_completions_macos.zip
 
   build-windows:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
+      - name: Extract BUILD_VERSION and set GITHUB_ENV
+        run: |
+          TAG_NAME="${{ github.ref_name }}"
+          VERSION="${TAG_NAME#v}"
+          echo "BUILD_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Set BUILD_VERSION to $VERSION"
+        # Windowsでもbashが使えるため、このシェルスクリプトは全OSで動作する
+        shell: bash
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -52,6 +78,16 @@ jobs:
           pip install flet==0.28.3
           # Generate requirements.txt for flet build
           echo "flet==0.28.3" > requirements.txt
+      
+      - name: Update src/__version.py__ in one line using PowerShell
+        run: |
+          # PowerShellの構文でバージョン番号を取得
+          $versionNum = "${{ github.ref_name }}".Substring(1)
+          
+          # Add-Content コマンドでファイルに書き込む
+          # "-Encoding UTF8" を指定して文字化けを防ぐ
+          "VERSION = `"$versionNum`"" | Add-Content -Path src/__version.py__ -Encoding UTF8
+        shell: powershell
 
       - name: Install Inno Setup
         run: |
@@ -59,21 +95,31 @@ jobs:
 
       - name: Flet Build Windows
         run: |
-          flet build windows --build-number ${{ github.run_number }}
+          flet build windows --build-version ${{ env.BUILD_VERSION }} --build-number ${{ github.run_number }}
+        env:
+          PYTHONUTF8: 1
 
       - name: Build Installer
         run: |
-          iscc setup.iss
+          iscc inno-setup/setup.iss
 
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v1
         with:
-          files: dist/human_chat_completions_setup.exe
+          files: inno-setup/Output/human_chat_completions_v${{ env.BUILD_VERSION }}_windows_setup.exe
 
   build-linux:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Extract BUILD_VERSION and set GITHUB_ENV
+        run: |
+          TAG_NAME="${{ github.ref_name }}"
+          VERSION="${TAG_NAME#v}"
+          echo "BUILD_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Set BUILD_VERSION to $VERSION"
+        shell: bash
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -86,6 +132,15 @@ jobs:
           pip install flet==0.28.3
           # Generate requirements.txt for flet build
           echo "flet==0.28.3" > requirements.txt
+      
+      - name: Update src/__version.py__ in one line using bash
+        run: |
+          # ${parameter#word} というbashの機能を使って 'v' を除去
+          VERSION_NUM="${{ github.ref_name#v }}"
+          
+          # 1行でファイルに書き込む
+          echo "VERSION = \"$VERSION_NUM\"" > src/__version.py__
+        shell: bash
 
       - name: Install Linux Build Dependencies
         run: |
@@ -98,10 +153,10 @@ jobs:
 
       - name: Zip Linux Bundle
         run: |
-          cd build/linux/x64/release/bundle
+          cd build/linux
           zip -r human_chat_completions_linux.zip .
 
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v1
         with:
-          files: build/linux/x64/release/bundle/human_chat_completions_linux.zip
+          files: build/linux/human_chat_completions_linux.zip
