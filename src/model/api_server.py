@@ -3,10 +3,10 @@
 """
 
 import asyncio
-import json
 import threading
 import time
-from typing import AsyncGenerator, Awaitable, Callable, List, Optional
+from logging import getLogger
+from typing import AsyncGenerator, Awaitable, Callable, Optional
 
 import uvicorn
 from fastapi import FastAPI, Header, HTTPException, Request
@@ -27,9 +27,7 @@ from model.api_model import (
     FinishReason,
 )
 
-# ==========================================
-# Server Management Class
-# ==========================================
+logger = getLogger(__name__)
 
 
 class FastAPIServer:
@@ -58,10 +56,15 @@ class FastAPIServer:
         self.app.add_api_route(
             "/",
             self.root,
-            methods=["GET"],
+            methods=["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD"],
         )
         self.app.add_api_route(
             "/v1/chat/completions",
+            self.chat_completions,
+            methods=["POST"],
+        )
+        self.app.add_api_route(
+            "/chat/completions",
             self.chat_completions,
             methods=["POST"],
         )
@@ -78,6 +81,7 @@ class FastAPIServer:
         self.server = uvicorn.Server(self.config)
         self._thread = None
         self.on_message_received = on_message_received
+        self.port = port
 
     def start(self):
         if self._thread and self._thread.is_alive():
@@ -98,33 +102,15 @@ class FastAPIServer:
         if self._thread and self._thread.is_alive():
             self._thread.join(timeout)
             if self._thread.is_alive():
-                print("Warning: Uvicorn thread did not exit gracefully.")
-
-    # ==========================================
-    # Mock Business Logic (To be separated later)
-    # ==========================================
-
-    async def get_response_content(self, messages: List[ChatCompletionRequestMessage]) -> str:
-        """
-        ここにビジネスロジック（人間への通知、DB参照など）が入ります。
-        現在は固定のレスポンスを返します。
-        """
-        # 実際にはここでユーザー入力を待機する処理が入る想定
-        # await wait_for_human_input(...)
-
-        # 擬似的な遅延（思考時間や入力待ち）
-        await asyncio.sleep(1.0)
-
-        # モックの固定レスポンス
-        return "これはHuman Backendからの固定レスポンスです。UIやビジネスロジックが接続されると、ここにオペレータの入力が反映されます。"
-
+                logger.warning("Uvicorn thread did not exit gracefully.")
 
     # ==========================================
     # Streaming Generator
     # ==========================================
 
-
-    async def stream_generator(self, content: str, model_id: str) -> AsyncGenerator[str, None]:
+    async def stream_generator(
+        self, content: str, model_id: str
+    ) -> AsyncGenerator[str, None]:
         """
         Server-Sent Events (SSE) 形式でレスポンスをストリーミングします。
         """
@@ -177,15 +163,21 @@ class FastAPIServer:
         # ストリーム終了シグナル
         yield "data: [DONE]\n\n"
 
-
     # ==========================================
     # Endpoints
     # ==========================================
 
-
-    async def root(self):
-        return {"message": "Human Chat Completions listening on port 8080"}
-
+    async def root(self, request: Request):
+        return {
+            "message": f"Human Chat Completions listening on port {self.port}.\nUsage: POST /chat/completions or /v1/chat/completions.",
+            "request": {
+                "method": request.method,
+                "url": request.url,
+                "query_params": request.query_params,
+                "headers": request.headers,
+                "body": await request.body(),
+            }
+        }
 
     async def chat_completions(
         self,
@@ -197,7 +189,7 @@ class FastAPIServer:
         """
         # 1. 応答内容の取得（ビジネスロジック呼び出し）
         # ストリーミングの場合でも、現状は「全応答が決まってから流す」方式としています
-        print(request.messages)
+        logger.debug(request.messages)
         response_content = await self.on_message_received(request.messages)
 
         # モデルIDの取得
@@ -206,7 +198,8 @@ class FastAPIServer:
         # 2. ストリーミングリクエストの場合
         if request.stream:
             return StreamingResponse(
-                self.stream_generator(response_content, model_id), media_type="text/event-stream"
+                self.stream_generator(response_content, model_id),
+                media_type="text/event-stream",
             )
 
         # 3. 通常リクエストの場合
@@ -225,7 +218,7 @@ class FastAPIServer:
                     )
                 ],
             )
-    
+
     async def not_found_handler(self, request: Request, exc: HTTPException):
         return JSONResponse(
             status_code=404,

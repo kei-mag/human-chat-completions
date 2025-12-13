@@ -5,7 +5,7 @@ from view.console import ConsoleView
 
 
 def main(page: ft.Page):
-    page.title = "Human Chat Completions"
+    page.title = "Human Chat Completions v0.1.0"
     page.description = "Operator Dashboard for WoZ experiments"
     page.window.icon = "icon.png" 
 
@@ -16,7 +16,7 @@ def main(page: ft.Page):
     page.dark_theme = ft.Theme(
         color_scheme_seed="#086fad",
     )
-    page.theme_mode = ft.ThemeMode.SYSTEM.value
+    page.theme_mode = ft.ThemeMode.SYSTEM
     
     # Initialize Views
     chat_view = ChatView(page)
@@ -56,7 +56,7 @@ def main(page: ft.Page):
                         ft.Container(console_view, expand=True)
                     ],
                     expand=True,
-                    scroll=ft.ScrollMode.AUTO.value
+                    scroll=ft.ScrollMode.AUTO
                 )
             )
         page.update()
