@@ -22,7 +22,7 @@ class ChatView(ft.Container):
     def __init__(self, page: ft.Page):
         super().__init__(expand=True)
         self.port_field = ft.TextField(
-            value="8080",
+            value="8000",
             label="PORT",
             width=100,
             text_size=12,

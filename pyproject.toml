@@ -41,7 +41,7 @@ dependencies = [
 org = "jp.ac.uec.lab.t-interaction"
 product = "Human Chat Completions"
 company = "Miyamoto Lab"
-copyright = "Copyright (C) 2025 by Keisuke Magara and Miyamoto Lab"
+copyright = "Copyright (c) 2025 Keisuke Magara & Miyamoto Lab"
 
 compile.app = true
 compile.packages = true
