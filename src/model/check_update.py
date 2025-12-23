@@ -1,30 +1,37 @@
 import re
+from logging import getLogger
 
 import httpx
 
 from __version__ import VERSION
 
+logger = getLogger(__name__)
+
 client = httpx.AsyncClient()
 current = VERSION
-# devバージョンはアップデート通知を出さない
-if "dev" in VERSION:
-    current = "999.99.99"
 
 
 async def check_update_available():
-    res = await client.get(
-        "https://api.github.com/repos/miyamoto-hai-lab/human-chat-completions/releases",
-        headers={
-            "Accept": "application/vnd.github+json",
-            "X-GitHub-Api-Version": "2022-11-28",
-        },
-    )
-    if res.status_code == 200:
-        latest = sorted(res.json(), key=lambda d: d["published_at"])[0][
-            "tag_name"
-        ].lstrip("v")
-        return version_parse(latest) > version_parse(current), current, latest
-    else:
+    try:
+        res = await client.get(
+            "https://api.github.com/repos/miyamoto-hai-lab/human-chat-completions/releases",
+            headers={
+                "Accept": "application/vnd.github+json",
+                "X-GitHub-Api-Version": "2022-11-28",
+                "User-Agent": "miyamoto-hai-lab/human-chat-completions update-checker",
+            },
+            timeout=30,
+            follow_redirects=True,
+        )
+        if res.status_code == 200:
+            latest = sorted(res.json(), key=lambda d: d["published_at"], reverse=True)[
+                0
+            ]["tag_name"].lstrip("v")
+            return version_parse(latest) > version_parse(current), current, latest
+        else:
+            return False, current, "unknown"
+    except Exception as e:
+        logger.exception(e)
         return False, current, "unknown"
 
 
