@@ -25,7 +25,7 @@ async def main(page: ft.Page):
 
     # Initialize Views
     chat_view = ChatView(page)
-    console_view = ConsoleView(page)
+    console_view = ConsoleView(page, chat_view)
 
     # Layout Containers
     def handle_resize(e):

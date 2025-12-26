@@ -1,30 +1,37 @@
 """
 メイン画面右側のレスポンス構築
 """
+import json
+from datetime import datetime
 from os import getenv
+from typing import TYPE_CHECKING
 
 import flet as ft
 
+if TYPE_CHECKING:
+    from view.chat import ChatView
+
 
 class ConsoleView(ft.Container):
-    def __init__(self, page: ft.Page):
+    def __init__(self, page: ft.Page, chat_view: "ChatView"):
         super().__init__(expand=True, padding=20)
         self.page = page
-        # 1. Error Display Area (Hidden by default)
-        self.error_container = ft.Container(
-            content=ft.Row(
-                [
-                    ft.Icon(ft.Icons.ERROR_OUTLINE, color=ft.Colors.RED_700),
-                    ft.Text("API Key is missing (Auto-injected in runtime). Mocking response for demo.", 
-                            color=ft.Colors.RED_700, size=12, expand=True),
-                ],
-                alignment=ft.MainAxisAlignment.START,
-            ),
-            bgcolor=ft.Colors.RED_50,
-            border=ft.border.all(1, ft.Colors.RED_200),
-            border_radius=5,
-            padding=10,
-            visible=False, # Initially hidden
+        self.chat_view = chat_view
+
+        # FilePicker for export
+        self.file_picker = ft.FilePicker(on_result=self.on_save_result)
+        self.page.overlay.append(self.file_picker)
+
+        # 1. Export Button
+        self.export_button = ft.ElevatedButton(
+            "Export Chat Log",
+            icon=ft.Icons.DOWNLOAD,
+            bgcolor=ft.Colors.TEAL_400,
+            color=ft.Colors.WHITE,
+            on_click=self.export_chat_log,
+            style=ft.ButtonStyle(
+                shape=ft.RoundedRectangleBorder(radius=5),
+            )
         )
 
         # 2. Controls & Mode Switch
@@ -108,7 +115,7 @@ class ConsoleView(ft.Container):
 
         self.content = ft.Column(
             [
-                self.error_container,
+                self.export_button,
                 ft.Text(f"Log file location: {getenv('FLET_APP_CONSOLE', 'unknown')}", color=ft.Colors.GREY_700),
                 ft.Divider(color=ft.Colors.TRANSPARENT, height=10),
 
@@ -166,3 +173,53 @@ class ConsoleView(ft.Container):
         if e.control.page:
             e.control.page.theme_mode = e.control.selected.pop()
             e.control.page.update()
+
+    def export_chat_log(self, e):
+        now = datetime.now()
+        filename = f"chatlog_{now.strftime('%Y-%m-%dT%H-%M-%S')}.json"
+        self.file_picker.save_file(
+            dialog_title="Save Chat Log",
+            file_name=filename,
+            file_type=ft.FilePickerFileType.CUSTOM,
+            allowed_extensions=["json"]
+        )
+
+    def on_save_result(self, e: ft.FilePickerResultEvent):
+        if not e.path:
+            return
+
+        conversations = []
+        # Access the chat view's message list controls
+        for control in self.chat_view.messages_list.controls:
+            if not isinstance(control, ft.Row):
+                continue
+            
+            # Identify role based on alignment
+            # MainAxisAlignment.START -> User (Left)
+            # MainAxisAlignment.END -> Assistant (Right)
+            role = "user" if control.alignment == ft.MainAxisAlignment.START else "assistant"
+            
+            # Extract content from the bubble
+            # Row -> [Bubble(Container)] -> Content(Text)
+            try:
+                bubble = control.controls[0]
+                content_text = bubble.content.value
+                conversations.append({
+                    "role": role,
+                    "content": content_text
+                })
+            except (AttributeError, IndexError):
+                continue
+
+        export_data = {
+            "savetime": datetime.now().isoformat(),
+            "conversations": conversations
+        }
+
+        try:
+            with open(e.path, "w", encoding="utf-8") as f:
+                json.dump(export_data, f, indent=4, ensure_ascii=False)
+            
+            self.page.show_snack_bar(ft.SnackBar(content=ft.Text(f"Saved to {e.path}")))
+        except Exception as ex:
+            self.page.show_snack_bar(ft.SnackBar(content=ft.Text(f"Error saving file: {ex}")))
